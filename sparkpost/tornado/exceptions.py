@@ -11,6 +11,7 @@ class SparkPostAPIException(RequestsSparkPostAPIException):
             if data:
                 errors = data['errors']
                 errors = [e['message'] + ': ' + e.get('description', '')
+                          if 'description' in e else e['message']
                           for e in errors]
         except:
             pass

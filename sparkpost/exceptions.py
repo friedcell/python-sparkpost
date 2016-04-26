@@ -9,6 +9,7 @@ class SparkPostAPIException(SparkPostException):
         try:
             errors = response.json()['errors']
             errors = [e['message'] + ': ' + e.get('description', '')
+                      if 'description' in e else e['message']
                       for e in errors]
         except:
             pass
