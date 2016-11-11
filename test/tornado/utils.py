@@ -41,6 +41,3 @@ class AsyncClientMock(RequestsMock):
         self._patcher = mock.patch('tornado.httpclient.AsyncHTTPClient.fetch',
                                    unbound_on_send)
         self._patcher.start()
-
-    def stop(self):
-        self._patcher.stop()
