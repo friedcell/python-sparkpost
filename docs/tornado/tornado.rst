@@ -6,8 +6,8 @@ The SparkPost python library comes with an integration with Tornado asynchronous
 Use in Tornado
 --------------
 
-To use SparkPost in with the AsyncHTTPClient, you have to import SparkPost from sparkpost.tornado instead of sparkpost 
-and use yield before all operations as they return a Future.
+To use SparkPost in Tornado with the AsyncHTTPClient, you have to import SparkPost from sparkpost.tornado instead of 
+sparkpost and use yield before all operations as they return a Future.
 
 Standalone use
 --------------
