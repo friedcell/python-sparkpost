@@ -1,8 +1,11 @@
 import base64
+import copy
 import json
+import warnings
 from email.utils import parseaddr
 
 from .base import Resource
+from .exceptions import SparkPostException
 
 
 try:
@@ -61,6 +64,7 @@ class Transmissions(Resource):
             model['recipients']['list_id'] = recipient_list
         else:
             recipients = kwargs.get('recipients', [])
+            recipients = self._extract_recipients(recipients)
             cc = kwargs.get('cc')
             bcc = kwargs.get('bcc')
 
@@ -72,7 +76,7 @@ class Transmissions(Resource):
                 bcc_copies = self._format_copies(recipients, bcc)
                 recipients = recipients + bcc_copies
 
-            model['recipients'] = self._extract_recipients(recipients)
+            model['recipients'] = recipients
 
         attachments = kwargs.get('attachments', [])
         model['content']['attachments'] = self._extract_attachments(
@@ -89,9 +93,22 @@ class Transmissions(Resource):
         formatted_copies = []
         if len(recipients) > 0:
             formatted_copies = self._extract_recipients(copies)
+            main_recipient = copy.deepcopy(recipients[0])
+            main_recipient.pop('address')
             for recipient in formatted_copies:
-                recipient['address'].update({'header_to': recipients[0]})
+                recipient['address'].update({
+                    'header_to': self._format_header_to(recipients[0])
+                })
+                recipient.update(**main_recipient)
         return formatted_copies
+
+    def _format_header_to(self, recipient):
+        if 'name' in recipient['address']:
+            return '"{name}" <{email}>'.format(
+                name=recipient['address']['name'],
+                email=recipient['address']['email']
+            )
+        return recipient['address']['email']
 
     def _extract_attachments(self, attachments):
         formatted_attachments = []
@@ -122,6 +139,10 @@ class Transmissions(Resource):
         return parsed_address
 
     def _extract_recipients(self, recipients):
+
+        if not (isinstance(recipients, (list, dict))):
+            raise SparkPostException('recipients must be a list or dict')
+
         formatted_recipients = []
         for recip in recipients:
             if isinstance(recip, string_types):
@@ -250,15 +271,21 @@ class Transmissions(Resource):
         results = self._fetch_get(transmission_id)
         return results['transmission']
 
-    def list(self):
+    def list(self, **kwargs):
         """
         Get a list of your transmissions
+
+        :param campaign_id: ID of the campaign used by the transmissions
+        :param template_id: ID of the template used by the transmissions
 
         :returns: list of transmissions
         :raises: :exc:`SparkPostAPIException` if API call fails
         """
-        results = self.request('GET', self.uri)
-        return results
+        warn_msg = 'This endpoint is deprecated. For details, '
+        'check https://sparkpo.st/5qcj4.'
+
+        warnings.warn(warn_msg, DeprecationWarning)
+        return self.request('GET', self.uri, params=kwargs)
 
     def delete(self, transmission_id):
         """

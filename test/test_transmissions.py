@@ -2,14 +2,16 @@ import base64
 import json
 import os
 import tempfile
+import warnings
 
 import pytest
 import responses
 import six
+from mock import patch
 
 from sparkpost import SparkPost
 from sparkpost import Transmissions
-from sparkpost.exceptions import SparkPostAPIException
+from sparkpost.exceptions import SparkPostAPIException, SparkPostException
 
 
 def test_translate_keys_with_list():
@@ -27,6 +29,12 @@ def test_translate_keys_with_recips():
     assert results['recipients'] == [{'address': {'email': 'test'}},
                                      {'key': 'value'},
                                      {'address': {'email': 'foobar'}}]
+
+
+def test_exceptions_for_recipients():
+    t = Transmissions('uri', 'key')
+    with pytest.raises(SparkPostException):
+        t._translate_keys(recipients='test')
 
 
 def test_translate_keys_with_unicode_recips():
@@ -56,6 +64,43 @@ def test_translate_keys_for_from_email():
         'name': 'Testing',
         'email': 'testing@example.com'
     }
+
+
+def test_format_header_to():
+    t = Transmissions('uri', 'key')
+    formatted = t._format_header_to(recipient={
+        'address': {'email': 'primary@example.com'}
+    })
+    assert formatted == 'primary@example.com'
+
+    formatted = t._format_header_to(recipient={
+        'address': {'name': 'Testing', 'email': 'primary@example.com'}
+    })
+    assert formatted == '"Testing" <primary@example.com>'
+
+
+def test_cc_with_sub_data():
+    t = Transmissions('uri', 'key')
+    results = t._translate_keys(
+        recipients=[{
+            'address': {'email': 'primary@example.com'},
+            'substitution_data': {'fake': 'data'}
+        }],
+        cc=['ccone@example.com']
+    )
+    assert results['recipients'] == [
+        {
+            'address': {'email': 'primary@example.com'},
+            'substitution_data': {'fake': 'data'}
+        },
+        {
+            'address': {
+                'email': 'ccone@example.com',
+                'header_to': 'primary@example.com'
+            },
+            'substitution_data': {'fake': 'data'}
+        }
+    ]
 
 
 def test_translate_keys_with_cc():
@@ -260,7 +305,8 @@ def test_fail_get():
 
 
 @responses.activate
-def test_success_list():
+@patch.object(warnings, 'warn')
+def test_success_list(mock_warn):
     responses.add(
         responses.GET,
         'https://api.sparkpost.com/api/v1/transmissions',
@@ -270,6 +316,23 @@ def test_success_list():
     )
     sp = SparkPost('fake-key')
     response = sp.transmission.list()
+    assert mock_warn.called
+    assert response == []
+
+
+@responses.activate
+def test_success_list_with_params():
+    responses.add(
+        responses.GET,
+        'https://api.sparkpost.com/api/v1/transmissions?template_id=abcd',
+        status=200,
+        content_type='application/json',
+        body='{"results": []}',
+        match_querystring=True
+
+    )
+    sp = SparkPost('fake-key')
+    response = sp.transmission.list(template_id='abcd')
     assert response == []
 
 
@@ -296,7 +359,7 @@ def test_fail_delete():
         content_type='application/json',
         body="""
         {"errors": [{"message": "resource not found",
-            "description": "Resource not found:transmission id foobar""}]}
+            "description": "Resource not found:transmission id foobar"}]}
         """
     )
     with pytest.raises(SparkPostAPIException):

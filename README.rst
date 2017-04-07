@@ -75,6 +75,7 @@ Here at SparkPost, our messages are known as transmissions. Let's use the underl
     sp = SparkPost()
 
     response = sp.transmissions.send(
+        use_sandbox=True,
         recipients=['someone@somedomain.com'],
         html='<p>Hello world</p>',
         from_email='test@sparkpostbox.com',
@@ -98,6 +99,26 @@ The SparkPost python library comes with an email backend for Django. Put the fol
 Replace *API_KEY* with an actual API key that you've generated in `Get a Key`_ section. Check out the `full documentation`_ on the Django email backend.
 
 .. _full documentation: https://python-sparkpost.readthedocs.io/en/latest/django/backend.html
+
+Using with Google Cloud
+-----------------------
+There are a few simple modifications necessary to enable the use of the underlying ``requests`` library that python-sparkpost uses. First, add the ``requests`` and ``requests-toolbelt`` to your project's ``requirements.txt``:
+
+.. code-block::
+
+    requests
+    requests-toolbelt
+
+Then create or update your ``appengine_config.py`` file to include the following:
+
+.. code-block:: python
+
+    import requests
+    import requests_toolbelt.adapters.appengine
+    
+    requests_toolbelt.adapters.appengine.monkeypatch()
+
+Then deploy your app and you should be able to send using python-sparkpost on Google Cloud.
 
 Documentation
 -------------

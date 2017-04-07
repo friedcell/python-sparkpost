@@ -5,6 +5,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 - [Compare to latest release][unreleased]
 
+## [1.3.5] - 2017-03-07
+### Added
+- [#141](https://github.com/SparkPost/python-sparkpost/pull/141) Validation for recipients parameter for transmissions
+- [#142](https://github.com/SparkPost/python-sparkpost/pull/142) URI parameter support for transmissions list endpoint. Also added deprecation warning
+
+## [1.3.4] - 2017-02-16
+### Added
+- Examples for exception handling and using the base resource class
+
+### Fixed
+- [#137](https://github.com/SparkPost/python-sparkpost/pull/137) Added missing `campaign` support for Django backend
+
+## [1.3.3] - 2017-01-13
+### Fixed
+- [#135](https://github.com/SparkPost/python-sparkpost/pull/135) Issue where exceptions were not returning properly for some underlying API errors
+
+## [1.3.2] - 2016-11-14
+### Fixed
+- [#129](https://github.com/SparkPost/python-sparkpost/pull/129) Reverted change for emojis in the body of a message, needs further investigation
+- [#129](https://github.com/SparkPost/python-sparkpost/pull/129) `substitution_data`, `metadata`, and `tags` are now supplied properly for cc/bcc recipients
+
+## [1.3.1] - 2016-11-13
+### Added
+- Instructions for use with Google Cloud
+
+### Fixed
+- [#114](https://github.com/SparkPost/python-sparkpost/pull/114) Issue where emojis in the body of a message were being forced to ASCII
+- [#118](https://github.com/SparkPost/python-sparkpost/pull/118) Fixed improper setting of header_to value when using cc and primary recipient has substitution data
+- [#119](https://github.com/SparkPost/python-sparkpost/pull/119) Added missing `sources` to suppression list key map
+
 ## [1.3.0] - 2016-10-01
 ### Added
 - [#121](https://github.com/SparkPost/python-sparkpost/pull/121) Added extended error code to `SparkPostAPIException` class
@@ -98,8 +128,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Metrics class for getting a list of campaigns and domains
 - Docs on readthedocs.org
 
-[unreleased]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.0...HEAD
-[1.2.0]: https://github.com/sparkpost/python-sparkpost/compare/v1.2.0...v1.3.0
+[unreleased]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.5...HEAD
+[1.3.5]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.4...v1.3.5
+[1.3.4]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.3...v1.3.4
+[1.3.3]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.2...v1.3.3
+[1.3.2]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/sparkpost/python-sparkpost/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/sparkpost/python-sparkpost/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/sparkpost/python-sparkpost/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/sparkpost/python-sparkpost/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sparkpost/python-sparkpost/compare/v1.0.5...v1.1.0
